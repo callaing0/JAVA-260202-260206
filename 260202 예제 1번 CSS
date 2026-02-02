@@ -9,7 +9,7 @@
     width:80px;
     height:50px;
     background: pink;
-    position: absolute;
+    position: absolute; /*부모 기준*/
     right: 0;
     bottom: 0;
 }
