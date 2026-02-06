@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .inputField{
+            display: flex;
+            gap: 15px;
+        }
+
+        
+        .inputAge{
+            display: flex;
+            gap: 15px;
+        }
+
+    </style>
+    <script>
+        function check(){
+            let name = document.getElementById("userName");
+            alert(name.value);
+
+            const obj = document.querySelector("#userName")
+            console.dir(obj);
+        }
+    </script>
+
+        <script>
+        function check1(){
+            let age = document.getElementById("userAge").value;
+            let age = ageTag.value;
+
+            const year = 2026;
+            const birth = year-parseInt(age)+1;
+
+            alert(birth);
+        }
+
+        function getad(){
+            let input = document.getElementById("userad");
+            let div = document.getElementById("result1");
+
+            div.innerText = input.value;
+            div.innerText = "<input>";
+        }
+    </script> 
+</head>
+<body>
+    <div class = inputField>
+        <input type="text" name="userName" id="userName">
+        <button onclick="check()">확인</button>
+    </div>
+
+    <!--나이를 입력하여 년도를 alert로 출력-->
+    <div class = inputAge>
+        <input type="number" name="userAge" id="userAge">
+        <button onclick="check1()">계산</button>
+    </div>
+
+    <!--주소를 입력하여 div#result1에 출력-->
+
+    <div class="userAd">
+        <input type="text" name="userad" id="userad">
+        <button onclick="getad()">확인</button>
+    </div>
+    <div id="result1">
+    </div>
+
+</body>
+</html>
