@@ -1,0 +1,25 @@
+public class Appointment {
+    private int appId;
+    private int pId;
+    private int dId;
+    private String appTime; // 형식: "2024-05-20 14:00"
+
+    public Appointment(int appId, int pId, int dId, String appTime) {
+        this.appId = appId;
+        this.pId = pId;
+        this.dId = dId;
+        this.appTime = appTime;
+    }
+
+    // Getter & Setter
+    public int getAppId() { return appId; }
+    public int getpId() { return pId; }
+    public int getdId() { return dId; }
+    public String getAppTime() { return appTime; }
+    
+    @Override
+    public String toString() {
+        return String.format("[예약번호: %d] 환자번호: %d | 의사번호: %d | 예약시간: %s", 
+                              appId, pId, dId, appTime);
+    }
+}
