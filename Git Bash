@@ -1,0 +1,6 @@
+Git Bash
+
+1. cd c:/
+2. cd [사용할 폴더 이름]
+3. git clone [사용할 git 주소]
+4. cd [git 폴더 이름]
