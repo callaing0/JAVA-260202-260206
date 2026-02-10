@@ -1,25 +1,33 @@
-/**
- * [기능 2] 예약 현황 조회 서비스
- */
-public void showAllAppointments() {
-    System.out.println("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-    System.out.println("     📅 현재 예약 시스템 현황");
-    System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+public void register(int patientId, int doctorId, String appDate, String situation) {
+    // 1. 해당 의사가 같은 시간에 예약이 있는지 확인하는 쿼리
+    String checkSql = "SELECT COUNT(*) FROM appointments WHERE doctor_id = ? AND app_date = ?";
+    // 2. 예약 등록 쿼리
+    String insertSql = "INSERT INTO appointments (patient_id, doctor_id, app_date, situation) VALUES (?, ?, ?, ?)";
 
-    // 1. 데이터 존재 여부 확인 (DB가 비어있는지 체크)
-    if (dbMock == null || dbMock.isEmpty()) {
-        System.out.println("현재 등록된 예약 내역이 존재하지 않습니다.");
-        return;
+    try (Connection conn = DBConfig.getConnection()) {
+        
+        // [중복 확인]
+        var pstmtCheck = conn.prepareStatement(checkSql);
+        pstmtCheck.setInt(1, doctorId);
+        pstmtCheck.setString(2, appDate); // '2023-10-25 14:30:00' 형식
+        var rs = pstmtCheck.executeQuery();
+        
+        if (rs.next() && rs.getInt(1) > 0) {
+            System.out.println("❌ 예약 실패: 해당 의사는 이미 이 시간에 예약이 있습니다.");
+            return;
+        }
+
+        // [데이터 삽입]
+        var pstmtInsert = conn.prepareStatement(insertSql);
+        pstmtInsert.setInt(1, patientId);
+        pstmtInsert.setInt(2, doctorId);
+        pstmtInsert.setString(3, appDate);
+        pstmtInsert.setString(4, situation); // 예: "진료대기", "예약완료" 등
+        
+        pstmtInsert.executeUpdate();
+        System.out.println("✅ " + appDate + " 예약이 정상 등록되었습니다.");
+
+    } catch (Exception e) {
+        System.out.println("❌ 등록 오류: " + e.getMessage());
     }
-
-    // 2. 전체 리스트 순회 및 출력 (SELECT * FROM 실행 결과 출력)
-    int count = 0;
-    for (Appointment app : dbMock) {
-        count++;
-        System.out.printf("[%d번 예약] 환자번호: %d | 의사번호: %d | 예약시간: %s%n", 
-                          app.getId(), app.getpId(), app.getdId(), app.getAppTime());
-    }
-
-    System.out.println("------------------------------");
-    System.out.println("총 " + count + "건의 예약이 조회되었습니다.");
 }
