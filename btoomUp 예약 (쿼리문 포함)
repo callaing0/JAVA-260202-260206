@@ -1,0 +1,92 @@
+import java.sql.*;
+
+public class AppointmentService {
+
+    // 1. DB 연결 설정 정보
+    private static final String URL = "jdbc:mysql://localhost:3306/hospital_db"; // 본인의 DB명으로 수정
+    private static final String USER = "bottomup2";
+    private static final String PASS = "bottomup22";
+
+    /**
+     * DB 연결 객체를 가져오는 메서드
+     */
+    private Connection getConnection() throws SQLException {
+        return DriverManager.getConnection(URL, USER, PASS);
+    }
+
+    /**
+     * [기능 1] 신규 예약 등록 (Register)
+     */
+    public void register(int patientId, int doctorId, String appDate, String situation) {
+        // 중복 체크 쿼리 (의사와 시간이 겹치는지 확인)
+        String checkSql = "SELECT COUNT(*) FROM appointments WHERE doctor_id = ? AND app_date = ?";
+        // 데이터 삽입 쿼리
+        String insertSql = "INSERT INTO appointments (patient_id, doctor_id, app_date, situation) VALUES (?, ?, ?, ?)";
+
+        try (Connection conn = getConnection()) {
+            
+            // 1. 중복 확인
+            try (PreparedStatement pstmtCheck = conn.prepareStatement(checkSql)) {
+                pstmtCheck.setInt(1, doctorId);
+                pstmtCheck.setString(2, appDate);
+                ResultSet rs = pstmtCheck.executeQuery();
+                
+                if (rs.next() && rs.getInt(1) > 0) {
+                    System.out.println("❌ 예약 실패: 해당 의사는 [" + appDate + "]에 이미 예약이 있습니다.");
+                    return;
+                }
+            }
+
+            // 2. 예약 등록
+            try (PreparedStatement pstmtInsert = conn.prepareStatement(insertSql)) {
+                pstmtInsert.setInt(1, patientId);
+                pstmtInsert.setInt(2, doctorId);
+                pstmtInsert.setString(3, appDate);
+                pstmtInsert.setString(4, situation);
+                
+                pstmtInsert.executeUpdate();
+                System.out.println("✅ 예약이 DB에 정상적으로 등록되었습니다.");
+            }
+
+        } catch (SQLException e) {
+            System.err.println("❌ DB 작업 중 오류 발생: " + e.getMessage());
+        }
+    }
+
+    /**
+     * [기능 2] 전체 예약 내역 확인 (Viewer)
+     */
+    public void printAllAppointments() {
+        String selectSql = "SELECT * FROM appointments ORDER BY app_date ASC";
+
+        System.out.println("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+        System.out.println("          🏥 현재 전체 예약 현황");
+        System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+
+        try (Connection conn = getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(selectSql)) {
+
+            boolean hasData = false;
+            while (rs.next()) {
+                hasData = true;
+                int appId = rs.getInt("app_id");
+                int pId = rs.getInt("patient_id");
+                int dId = rs.getInt("doctor_id");
+                String date = rs.getString("app_date");
+                String status = rs.getString("situation");
+
+                System.out.printf("[번호:%d] 환자:%d | 의사:%d | 일시:%s | 상태:%s%n", 
+                                  appId, pId, dId, date, status);
+            }
+
+            if (!hasData) {
+                System.out.println("현재 등록된 예약 내역이 없습니다.");
+            }
+
+        } catch (SQLException e) {
+            System.err.println("❌ 데이터 조회 중 오류 발생: " + e.getMessage());
+        }
+        System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+    }
+}
