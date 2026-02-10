@@ -1,0 +1,33 @@
+/**
+ * [기능 1] 신규 예약 등록 서비스
+ */
+public void registerAppointment(int pId, int dId, String time) {
+    // 1. 필수 입력값 검증
+    if (time == null || time.trim().isEmpty()) {
+        System.out.println("❌ 오류: 예약 시간을 정확히 입력해주세요.");
+        return;
+    }
+
+    // 2. 의사 일정 중복 체크 (핵심 비즈니스 로직)
+    // DB에서 해당 의사와 시간에 이미 데이터가 있는지 확인하는 과정
+    boolean isDuplicate = false;
+    for (Appointment app : dbMock) {
+        if (app.getdId() == dId && app.getAppTime().equals(time)) {
+            isDuplicate = true;
+            break;
+        }
+    }
+
+    if (isDuplicate) {
+        System.out.println("❌ 예약 불가: 해당 의사는 이미 [" + time + "]에 진료가 있습니다.");
+        return;
+    }
+
+    // 3. 예약 저장 (DB INSERT 시뮬레이션)
+    int nextId = dbMock.size() + 1;
+    Appointment newApp = new Appointment(nextId, pId, dId, time);
+    dbMock.add(newApp);
+
+    System.out.println("✅ 예약이 성공적으로 완료되었습니다.");
+    System.out.println("상세 정보: " + newApp);
+}
